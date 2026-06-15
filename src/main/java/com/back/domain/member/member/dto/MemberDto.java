@@ -19,4 +19,6 @@ public record MemberDto (
                 member.getName()
         );
     }
+
+    public record LoginDto(MemberDto item, String apiKey) {}
 }

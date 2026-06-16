@@ -1,8 +1,8 @@
 package com.back.domain.member.member.controller;
 
-import com.back.domain.member.member.controller.ApiV1MemberController;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
+import jakarta.servlet.http.Cookie;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,10 +15,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -62,7 +63,6 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.data.name").value(member.getName()));
     }
 
-
     @Test
     @DisplayName("로그인")
     void t2() throws Exception {
@@ -93,7 +93,13 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.data.item.createDate").value(Matchers.startsWith(member.getCreateDate().toString().substring(0, 20))))
                 .andExpect(jsonPath("$.data.item.modifyDate").value(Matchers.startsWith(member.getModifyDate().toString().substring(0, 20))))
                 .andExpect(jsonPath("$.data.item.name").value(member.getName()))
-                .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()));
+                .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()))
+                .andExpect(
+                result -> {
+                    Cookie apiKeyCookie = result.getResponse().getCookie("apiKey");
+                    assertThat(apiKeyCookie.getValue()).isEqualTo(member.getApiKey());
+                }
+        );
     }
 
     @Test
